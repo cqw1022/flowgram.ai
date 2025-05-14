@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "rm -rf ./doc_build && rspress build",
+    "build": "rimraf -rf ./doc_build && rspress build",
     "docs": "tsx ./scripts/auto-generate.ts",
     "dev": "rspress dev",
     "lint": "eslint ./components --cache",
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "rspress": "^1.38.0",
+    "rimraf": "^6.0.1",
     "@rspress/core": "^1.38.0",
     "@rspress/shared": "^1.38.0",
     "@codesandbox/sandpack-react": "2.19.10",

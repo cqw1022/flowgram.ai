@@ -15,9 +15,9 @@
     "tsconfig.json"
   ],
   "scripts": {
-    "build": "exit 0",
-    "build:fast": "exit 0",
-    "build:watch": "exit 0",
+    "build": "cross-env NODE_ENV=production rsbuild build",
+    "build:fast": "cross-env NODE_ENV=production rsbuild build --mode fast",
+    "build:watch": "cross-env NODE_ENV=development rsbuild build --watch",
     "clean": "rimraf dist",
     "dev": "cross-env MODE=app NODE_ENV=development rsbuild dev --open",
     "lint": "eslint ./src --cache",
@@ -28,6 +28,7 @@
     "watch": "exit 0"
   },
   "dependencies": {
+    "rimraf": "^6.0.1",
     "@douyinfe/semi-icons": "^2.72.3",
     "@douyinfe/semi-ui": "^2.72.3",
     "@flowgram.ai/free-layout-editor": "workspace:*",
