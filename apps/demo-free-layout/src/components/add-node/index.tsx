@@ -1,10 +1,13 @@
 import { Button } from '@douyinfe/semi-ui';
 import { IconPlus } from '@douyinfe/semi-icons';
+import { useI18n } from '../../context/i18n-context';
 
 import { useAddNode } from './use-add-node';
 
 export const AddNode = (props: { disabled: boolean }) => {
   const addNode = useAddNode();
+  const { t } = useI18n();
+
   return (
     <Button
       icon={<IconPlus />}
@@ -16,7 +19,7 @@ export const AddNode = (props: { disabled: boolean }) => {
         addNode(rect);
       }}
     >
-      Add Node
+      {t('Add')} {t('Node')}
     </Button>
   );
 };

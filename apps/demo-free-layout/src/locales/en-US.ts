@@ -11,6 +11,7 @@ export default {
     Editor: 'Editor',
     Tools: 'Tools',
     Sidebar: 'Sidebar',
+    Node: 'Node',
 
     // Actions
     Save: 'Save',

@@ -11,6 +11,8 @@ export default {
     Editor: '编辑器',
     Tools: '工具',
     Sidebar: '侧边栏',
+    Node: '节点',
+    AddNode: '添加节点',
 
     // Actions
     Save: '保存',
