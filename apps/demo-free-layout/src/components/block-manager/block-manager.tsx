@@ -18,8 +18,11 @@ export const BlockManager: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingBlock, setEditingBlock] = useState<BlockDefinition | null>(null);
 
-  // 使用useRef代替Form.useForm
-  const formRef = useRef<any>(null);
+  // 使用明确的类型注解解决嵌套过深问题
+  const formRef = useRef<{
+    setValues: (values: Record<string, any>) => void;
+    reset: () => void;
+  }>(null);
 
   // 加载块定义
   const loadBlocks = async () => {
@@ -114,6 +117,10 @@ export const BlockManager: React.FC = () => {
     setTimeout(() => {
       if (formRef.current) {
         formRef.current.reset();
+        // 设置默认类型为task_block
+        formRef.current.setValues({
+          type: 'task_block'
+        });
       }
     }, 0);
     setModalVisible(true);
@@ -263,12 +270,14 @@ export const BlockManager: React.FC = () => {
           layout="vertical"
           onSubmit={handleSave}
         >
-          <Form.Input
+          <Form.Select
             field="type"
             label={t('BlockType')}
-            rules={[{ required: true, message: `${t('Please input')} ${t('BlockType')}` }]}
-            placeholder={`${t('Input')} ${t('BlockType')}, ${t('e.g.')}: http_request`}
-          />
+            rules={[{ required: true, message: `${t('Please select')} ${t('BlockType')}` }]}
+            placeholder={`${t('Select')} ${t('BlockType')}`}
+          >
+            <Select.Option value="task_block">task_block</Select.Option>
+          </Form.Select>
 
           <Form.Input
             field="name"
