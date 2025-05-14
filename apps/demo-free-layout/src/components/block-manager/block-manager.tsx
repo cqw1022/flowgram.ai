@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Table, Button, Modal, Form, Input, Select, Space, Typography, Toast } from '@douyinfe/semi-ui';
 import { IconPlus, IconEdit, IconDelete } from '@douyinfe/semi-icons';
 import { BlockDefinition, BlockInputDef, BlockOutputDef } from '../../typings/block';
@@ -17,7 +17,9 @@ export const BlockManager: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingBlock, setEditingBlock] = useState<BlockDefinition | null>(null);
-  const [form] = Form.useForm();
+
+  // 使用useRef代替Form.useForm
+  const formRef = useRef<any>(null);
 
   // 加载块定义
   const loadBlocks = async () => {
@@ -88,22 +90,32 @@ export const BlockManager: React.FC = () => {
   // 打开编辑模态框
   const openEditModal = (block: BlockDefinition) => {
     setEditingBlock(block);
-    form.setValues({
-      type: block.type,
-      name: block.name,
-      description: block.description,
-      executor: block.executor.name,
-      entry: block.executor.entry,
-      inputs: formatInputs(block.inputs_def),
-      outputs: formatOutputs(block.outputs_def),
-    });
+    // 使用延时确保Form组件已经渲染
+    setTimeout(() => {
+      if (formRef.current) {
+        formRef.current.setValues({
+          type: block.type,
+          name: block.name,
+          description: block.description,
+          executor: block.executor.name,
+          entry: block.executor.entry,
+          inputs: formatInputs(block.inputs_def),
+          outputs: formatOutputs(block.outputs_def),
+        });
+      }
+    }, 0);
     setModalVisible(true);
   };
 
   // 打开添加模态框
   const openAddModal = () => {
     setEditingBlock(null);
-    form.reset();
+    // 使用延时确保Form组件已经渲染
+    setTimeout(() => {
+      if (formRef.current) {
+        formRef.current.reset();
+      }
+    }, 0);
     setModalVisible(true);
   };
 
@@ -184,32 +196,39 @@ export const BlockManager: React.FC = () => {
     {
       title: t('BlockInputsCount'),
       key: 'inputsCount',
-      render: (text: string, record: BlockDefinition) => record.inputs_def.length,
+      render: (text: string, record: BlockDefinition) => {
+        return record?.inputs_def?.length || 0;
+      },
     },
     {
       title: t('BlockOutputsCount'),
       key: 'outputsCount',
-      render: (text: string, record: BlockDefinition) => record.outputs_def.length,
+      render: (text: string, record: BlockDefinition) => {
+        return record?.outputs_def?.length || 0;
+      },
     },
     {
       title: t('BlockActions'),
       key: 'action',
-      render: (text: string, record: BlockDefinition) => (
-        <Space>
-          <Button
-            icon={<IconEdit />}
-            onClick={() => openEditModal(record)}
-            theme="borderless"
-            type="tertiary"
-          />
-          <Button
-            icon={<IconDelete />}
-            onClick={() => handleDelete(record)}
-            theme="borderless"
-            type="danger"
-          />
-        </Space>
-      ),
+      render: (text: string, record: BlockDefinition) => {
+        if (!record) return null;
+        return (
+          <Space>
+            <Button
+              icon={<IconEdit />}
+              onClick={() => openEditModal(record)}
+              theme="borderless"
+              type="tertiary"
+            />
+            <Button
+              icon={<IconDelete />}
+              onClick={() => handleDelete(record)}
+              theme="borderless"
+              type="danger"
+            />
+          </Space>
+        );
+      },
     },
   ];
 
@@ -228,7 +247,7 @@ export const BlockManager: React.FC = () => {
       <Table
         columns={columns}
         dataSource={blocks}
-        rowKey={record => `${record.type}_${record.executor.name}`}
+        rowKey={(record) => record ? `${record.type}_${record.executor.name}` : ''}
         loading={loading}
       />
 
@@ -240,7 +259,7 @@ export const BlockManager: React.FC = () => {
         width={700}
       >
         <Form
-          form={form}
+          ref={formRef}
           layout="vertical"
           onSubmit={handleSave}
         >

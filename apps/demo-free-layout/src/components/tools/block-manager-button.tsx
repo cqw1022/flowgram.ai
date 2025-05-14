@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import { Tooltip, IconButton, Modal } from '@douyinfe/semi-ui';
 import { IconApps } from '@douyinfe/semi-icons';
 import { BlockManager } from '../block-manager';
@@ -6,21 +6,24 @@ import { useI18n } from '../../context/i18n-context';
 
 export const BlockManagerButton: React.FC<{
   disabled?: boolean;
-}> = ({ disabled }) => {
+}> = memo(({ disabled }) => {
   const [visible, setVisible] = useState(false);
   const { t } = useI18n();
 
-  const openBlockManager = () => {
+  const openBlockManager = useCallback(() => {
     setVisible(true);
-  };
+  }, []);
 
-  const closeBlockManager = () => {
+  const closeBlockManager = useCallback(() => {
     setVisible(false);
-  };
+  }, []);
+
+  const tooltipContent = t('BlockManager');
+  const modalTitle = t('BlockManager');
 
   return (
     <>
-      <Tooltip content={t('BlockManager')}>
+      <Tooltip content={tooltipContent} trigger="hover">
         <IconButton
           type="tertiary"
           theme="borderless"
@@ -31,7 +34,7 @@ export const BlockManagerButton: React.FC<{
       </Tooltip>
 
       <Modal
-        title={t('BlockManager')}
+        title={modalTitle}
         visible={visible}
         onCancel={closeBlockManager}
         footer={null}
@@ -43,4 +46,4 @@ export const BlockManagerButton: React.FC<{
       </Modal>
     </>
   );
-};
+});
