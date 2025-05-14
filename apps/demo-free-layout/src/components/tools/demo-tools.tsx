@@ -18,12 +18,15 @@ import { FitView } from './fit-view';
 import { Comment } from './comment';
 import { AutoLayout } from './auto-layout';
 import { BlockManagerButton } from './block-manager-button';
+import { useI18n } from '../../context/i18n-context';
 
 export const DemoTools = () => {
   const { history, playground } = useClientContext();
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [minimapVisible, setMinimapVisible] = useState(true);
+  const { t } = useI18n();
+
   useEffect(() => {
     const disposable = history.undoRedoService.onChange(() => {
       setCanUndo(history.canUndo());
@@ -50,7 +53,7 @@ export const DemoTools = () => {
         <Minimap visible={minimapVisible} />
         <Readonly />
         <Comment />
-        <Tooltip content="Undo">
+        <Tooltip content={t('Undo')}>
           <IconButton
             type="tertiary"
             theme="borderless"
@@ -59,7 +62,7 @@ export const DemoTools = () => {
             onClick={() => history.undo()}
           />
         </Tooltip>
-        <Tooltip content="Redo">
+        <Tooltip content={t('Redo')}>
           <IconButton
             type="tertiary"
             theme="borderless"

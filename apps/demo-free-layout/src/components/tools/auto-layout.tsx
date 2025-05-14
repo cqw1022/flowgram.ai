@@ -2,18 +2,21 @@ import { useCallback } from 'react';
 
 import { usePlayground, usePlaygroundTools } from '@flowgram.ai/free-layout-editor';
 import { IconButton, Tooltip } from '@douyinfe/semi-ui';
+import { useI18n } from '../../context/i18n-context';
 
 import { IconAutoLayout } from '../../assets/icon-auto-layout';
 
 export const AutoLayout = () => {
   const tools = usePlaygroundTools();
   const playground = usePlayground();
+  const { t } = useI18n();
+
   const autoLayout = useCallback(async () => {
     await tools.autoLayout();
   }, [tools]);
 
   return (
-    <Tooltip content={'Auto Layout'}>
+    <Tooltip content={t('AutoLayout')}>
       <IconButton
         disabled={playground.config.readonly}
         type="tertiary"

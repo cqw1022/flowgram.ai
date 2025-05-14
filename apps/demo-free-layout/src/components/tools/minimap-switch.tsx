@@ -1,4 +1,5 @@
 import { Tooltip, IconButton } from '@douyinfe/semi-ui';
+import { useI18n } from '../../context/i18n-context';
 
 import { UIIconMinimap } from './styles';
 
@@ -7,9 +8,10 @@ export const MinimapSwitch = (props: {
   setMinimapVisible: (visible: boolean) => void;
 }) => {
   const { minimapVisible, setMinimapVisible } = props;
+  const { t } = useI18n();
 
   return (
-    <Tooltip content="Minimap">
+    <Tooltip content={t('Minimap')}>
       <IconButton
         type="tertiary"
         theme="borderless"

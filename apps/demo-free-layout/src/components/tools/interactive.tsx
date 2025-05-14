@@ -5,6 +5,7 @@ import {
   type InteractiveType as IdeInteractiveType,
 } from '@flowgram.ai/free-layout-editor';
 import { Tooltip, Popover } from '@douyinfe/semi-ui';
+import { useI18n } from '../../context/i18n-context';
 
 import { MousePadSelector } from './mouse-pad-selector';
 
@@ -32,6 +33,7 @@ export enum InteractiveType {
 export const Interactive = () => {
   const tools = usePlaygroundTools();
   const [visible, setVisible] = useState(false);
+  const { t } = useI18n();
 
   const [interactiveType, setInteractiveType] = useState<InteractiveType>(
     () => getPreferInteractiveType() as InteractiveType
@@ -40,7 +42,7 @@ export const Interactive = () => {
   const [showInteractivePanel, setShowInteractivePanel] = useState(false);
 
   const mousePadTooltip =
-    interactiveType === InteractiveType.Mouse ? 'Mouse-Friendly' : 'Touchpad-Friendly';
+    interactiveType === InteractiveType.Mouse ? t('MouseFriendly') : t('TouchpadFriendly');
 
   useEffect(() => {
     tools.setMouseScrollDelta((zoom) => zoom / 20);

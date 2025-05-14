@@ -9,6 +9,7 @@ import {
   WorkflowSelectService,
 } from '@flowgram.ai/free-layout-editor';
 import { IconButton, Tooltip } from '@douyinfe/semi-ui';
+import { useI18n } from '../../context/i18n-context';
 
 import { WorkflowNodeType } from '../../nodes';
 import { IconComment } from '../../assets/icon-comment';
@@ -18,6 +19,7 @@ export const Comment = () => {
   const document = useService(WorkflowDocument);
   const selectService = useService(WorkflowSelectService);
   const dragService = useService(WorkflowDragService);
+  const { t } = useI18n();
 
   const [tooltipVisible, setTooltipVisible] = useState(false);
 
@@ -53,7 +55,7 @@ export const Comment = () => {
       trigger="custom"
       visible={tooltipVisible}
       onVisibleChange={setTooltipVisible}
-      content="Comment"
+      content={t('Comment')}
     >
       <IconButton
         disabled={playground.config.readonly}
