@@ -19,7 +19,7 @@ export const AddNode = (props: { disabled: boolean }) => {
         addNode(rect);
       }}
     >
-      {t('Add')} {t('Node')}
+      {t('AddNode')}
     </Button>
   );
 };

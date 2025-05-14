@@ -12,6 +12,7 @@ export default {
     Tools: 'Tools',
     Sidebar: 'Sidebar',
     Node: 'Node',
+    AddNode: 'Add Node',
 
     // Actions
     Save: 'Save',
@@ -71,5 +72,22 @@ export default {
     ConfirmDelete: 'Are you sure you want to delete this block?',
     InputsFormat: 'Format: handle|type|optional|description, each input on a new line',
     OutputsFormat: 'Format: handle|type|description, each output on a new line',
+
+    // Form
+    'Please input': 'Please input',
+    'Please select': 'Please select',
+    'Input': 'Input',
+    'Select': 'Select',
+    'e.g.': 'e.g.',
+    'Request': 'Request',
+
+    // Node types
+    'start': 'Start',
+    'end': 'End',
+    'condition': 'Condition',
+    'loop': 'Loop',
+    'llm': 'LLM',
+    'comment': 'Comment',
+    'Unnamed Block': 'Unnamed Block',
   },
 };

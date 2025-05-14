@@ -70,7 +70,24 @@ export default {
     DeleteBlockSuccess: '删除任务块成功',
     DeleteBlockFailed: '删除任务块失败',
     ConfirmDelete: '确定要删除此任务块吗？',
-    InputsFormat: '格式：handle|type|optional|description，每行一个输入',
-    OutputsFormat: '格式：handle|type|description，每行一个输出',
+    InputsFormat: '格式：handle|类型|是否可选|描述，每行一个输入',
+    OutputsFormat: '格式：handle|类型|描述，每行一个输出',
+
+    // Form
+    'Please input': '请输入',
+    'Please select': '请选择',
+    'Input': '输入',
+    'Select': '选择',
+    'e.g.': '例如',
+    'Request': '请求',
+
+    // Node types
+    'start': '开始',
+    'end': '结束',
+    'condition': '条件',
+    'loop': '循环',
+    'llm': 'LLM',
+    'comment': '注释',
+    'Unnamed Block': '未命名块',
   },
 };

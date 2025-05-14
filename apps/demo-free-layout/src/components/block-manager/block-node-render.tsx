@@ -4,6 +4,7 @@ import { ConfigProvider } from '@douyinfe/semi-ui';
 import { BlockDefinition } from '../../typings/block';
 import { NodeRenderContext } from '../../context';
 import { NodeWrapper } from '../base-node/node-wrapper';
+import { useI18n } from '../../context/i18n-context';
 
 interface BlockNodeProps {
   node: FlowNodeEntity;
@@ -15,6 +16,7 @@ export const BlockNodeRender: React.FC<BlockNodeProps> = (props) => {
   const nodeRender = useNodeRender();
   // 获取表单
   const form = nodeRender.form;
+  const { t } = useI18n();
 
   // 用于让 Tooltip 跟随节点缩放
   const getPopupContainer = useCallback(() => node.renderData.node || document.body, []);
@@ -50,37 +52,8 @@ export const BlockNodeRender: React.FC<BlockNodeProps> = (props) => {
 
     // 如果没有标题，尝试从节点类型生成一个标题
     if (!title) {
-      // 基于节点类型生成描述性标题
-      switch (nodeType) {
-        case 'start':
-          title = '开始';
-          break;
-        case 'end':
-          title = '结束';
-          break;
-        case 'condition':
-          title = '条件';
-          break;
-        case 'loop':
-          title = '循环';
-          break;
-        case 'llm':
-          title = 'LLM';
-          break;
-        case 'comment':
-          title = '注释';
-          break;
-        default:
-          // 尝试从类型名提取更有意义的标题
-          const typeParts = nodeType.split('_');
-          if (typeParts.length > 1) {
-            title = typeParts.slice(0, -1).map((part: string) =>
-              part.charAt(0).toUpperCase() + part.slice(1)
-            ).join(' ');
-          } else {
-            title = nodeType.charAt(0).toUpperCase() + nodeType.slice(1);
-          }
-      }
+      // 使用翻译获取默认标题
+      title = t(nodeType);
     }
 
     return (
@@ -106,7 +79,7 @@ export const BlockNodeRender: React.FC<BlockNodeProps> = (props) => {
             {renderExecutorIcon(block.executor.name)}
           </span>
           <span className="block-title">
-            {nodeTitle || block.name || block.type || '未命名块'}
+            {nodeTitle || block.name || block.type || t('Unnamed Block')}
           </span>
         </div>
 

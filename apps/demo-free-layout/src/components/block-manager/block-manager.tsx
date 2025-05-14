@@ -4,6 +4,7 @@ import { IconPlus, IconEdit, IconDelete } from '@douyinfe/semi-icons';
 import { BlockDefinition, BlockInputDef, BlockOutputDef } from '../../typings/block';
 import { BlockService } from '../../services/block-service';
 import { useClientContext } from '@flowgram.ai/free-layout-editor';
+import { useI18n } from '../../context/i18n-context';
 
 /**
  * 块管理组件
@@ -11,6 +12,7 @@ import { useClientContext } from '@flowgram.ai/free-layout-editor';
 export const BlockManager: React.FC = () => {
   const { container } = useClientContext();
   const blockService = container.get(BlockService);
+  const { t } = useI18n();
   const [blocks, setBlocks] = useState<BlockDefinition[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -24,8 +26,8 @@ export const BlockManager: React.FC = () => {
       const blockDefinitions = await blockService.loadBlockDefinitions();
       setBlocks(blockDefinitions);
     } catch (error) {
-      Toast.error('加载块定义失败');
-      console.error('加载块定义失败:', error);
+      Toast.error(t('LoadBlocksFailed'));
+      console.error(t('LoadBlocksFailed'), error);
     } finally {
       setLoading(false);
     }
@@ -55,18 +57,18 @@ export const BlockManager: React.FC = () => {
         // 编辑现有块
         const blockId = `${editingBlock.type}_${editingBlock.executor.name}`;
         await blockService.updateTaskBlock(blockId, blockData);
-        Toast.success('更新任务块成功');
+        Toast.success(t('UpdateBlockSuccess'));
       } else {
         // 添加新块
         await blockService.addTaskBlock(blockData);
-        Toast.success('添加任务块成功');
+        Toast.success(t('AddBlockSuccess'));
       }
 
       setModalVisible(false);
       loadBlocks(); // 重新加载数据
     } catch (error) {
-      Toast.error(editingBlock ? '更新任务块失败' : '添加任务块失败');
-      console.error(editingBlock ? '更新任务块失败:' : '添加任务块失败:', error);
+      Toast.error(editingBlock ? t('UpdateBlockFailed') : t('AddBlockFailed'));
+      console.error(editingBlock ? t('UpdateBlockFailed') : t('AddBlockFailed'), error);
     }
   };
 
@@ -75,11 +77,11 @@ export const BlockManager: React.FC = () => {
     try {
       const blockId = `${block.type}_${block.executor.name}`;
       await blockService.deleteTaskBlock(blockId);
-      Toast.success('删除任务块成功');
+      Toast.success(t('DeleteBlockSuccess'));
       loadBlocks(); // 重新加载数据
     } catch (error) {
-      Toast.error('删除任务块失败');
-      console.error('删除任务块失败:', error);
+      Toast.error(t('DeleteBlockFailed'));
+      console.error(t('DeleteBlockFailed'), error);
     }
   };
 
@@ -159,38 +161,38 @@ export const BlockManager: React.FC = () => {
   // 表格列定义
   const columns = [
     {
-      title: '类型',
+      title: t('BlockType'),
       dataIndex: 'type',
       key: 'type',
     },
     {
-      title: '名称',
+      title: t('BlockName'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: '描述',
+      title: t('BlockDescription'),
       dataIndex: 'description',
       key: 'description',
       ellipsis: true,
     },
     {
-      title: '执行器',
+      title: t('BlockExecutor'),
       dataIndex: 'executor.name',
       key: 'executor',
     },
     {
-      title: '输入数量',
+      title: t('BlockInputsCount'),
       key: 'inputsCount',
       render: (text: string, record: BlockDefinition) => record.inputs_def.length,
     },
     {
-      title: '输出数量',
+      title: t('BlockOutputsCount'),
       key: 'outputsCount',
       render: (text: string, record: BlockDefinition) => record.outputs_def.length,
     },
     {
-      title: '操作',
+      title: t('BlockActions'),
       key: 'action',
       render: (text: string, record: BlockDefinition) => (
         <Space>
@@ -219,7 +221,7 @@ export const BlockManager: React.FC = () => {
           icon={<IconPlus />}
           onClick={openAddModal}
         >
-          添加任务块
+          {t('AddBlock')}
         </Button>
       </div>
 
@@ -231,7 +233,7 @@ export const BlockManager: React.FC = () => {
       />
 
       <Modal
-        title={editingBlock ? '编辑任务块' : '添加任务块'}
+        title={editingBlock ? t('EditBlock') : t('AddBlock')}
         visible={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
@@ -244,30 +246,30 @@ export const BlockManager: React.FC = () => {
         >
           <Form.Input
             field="type"
-            label="类型"
-            rules={[{ required: true, message: '请输入任务块类型' }]}
-            placeholder="输入任务块类型，如：http_request"
+            label={t('BlockType')}
+            rules={[{ required: true, message: `${t('Please input')} ${t('BlockType')}` }]}
+            placeholder={`${t('Input')} ${t('BlockType')}, ${t('e.g.')}: http_request`}
           />
 
           <Form.Input
             field="name"
-            label="名称"
-            rules={[{ required: true, message: '请输入任务块名称' }]}
-            placeholder="输入任务块名称，如：HTTP 请求"
+            label={t('BlockName')}
+            rules={[{ required: true, message: `${t('Please input')} ${t('BlockName')}` }]}
+            placeholder={`${t('Input')} ${t('BlockName')}, ${t('e.g.')}: HTTP ${t('Request')}`}
           />
 
           <Form.TextArea
             field="description"
-            label="描述"
-            placeholder="输入任务块描述"
+            label={t('BlockDescription')}
+            placeholder={`${t('Input')} ${t('BlockDescription')}`}
             rows={2}
           />
 
           <Form.Select
             field="executor"
-            label="执行器"
-            rules={[{ required: true, message: '请选择执行器' }]}
-            placeholder="选择执行器"
+            label={t('BlockExecutor')}
+            rules={[{ required: true, message: `${t('Please select')} ${t('BlockExecutor')}` }]}
+            placeholder={`${t('Select')} ${t('BlockExecutor')}`}
           >
             <Select.Option value="rust">Rust</Select.Option>
             <Select.Option value="python">Python</Select.Option>
@@ -277,31 +279,31 @@ export const BlockManager: React.FC = () => {
 
           <Form.Input
             field="entry"
-            label="入口"
-            placeholder="输入执行器入口点，如：main.py"
+            label={t('BlockEntry')}
+            placeholder={`${t('Input')} ${t('BlockEntry')}, ${t('e.g.')}: main.py`}
           />
 
           <Form.TextArea
             field="inputs"
-            label="输入定义"
-            placeholder="输入定义"
+            label={t('BlockInputs')}
+            placeholder={t('BlockInputs')}
             rows={4}
-            extraText="每行一个输入，格式: 句柄|类型|是否可选|描述。例如: url|string|false|请求地址"
+            extraText={t('InputsFormat')}
           />
 
           <Form.TextArea
             field="outputs"
-            label="输出定义"
-            placeholder="输出定义"
+            label={t('BlockOutputs')}
+            placeholder={t('BlockOutputs')}
             rows={4}
-            extraText="每行一个输出，格式: 句柄|类型|描述。例如: response|string|响应结果"
+            extraText={t('OutputsFormat')}
           />
 
           <div style={{ marginTop: 20, textAlign: 'right' }}>
             <Space>
-              <Button onClick={() => setModalVisible(false)}>取消</Button>
+              <Button onClick={() => setModalVisible(false)}>{t('Cancel')}</Button>
               <Button type="primary" htmlType="submit">
-                保存
+                {t('Save')}
               </Button>
             </Space>
           </div>
