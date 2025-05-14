@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 import { debounce } from 'lodash-es';
 import { createMinimapPlugin } from '@flowgram.ai/minimap-plugin';
@@ -13,19 +13,55 @@ import { createContainerNodePlugin } from '@flowgram.ai/free-container-plugin';
 import { onDragLineEnd } from '../utils';
 import { FlowNodeRegistry, FlowDocumentJSON } from '../typings';
 import { shortcuts } from '../shortcuts';
-import { CustomService } from '../services';
+import { CustomService, ApiService, BlockService } from '../services';
 import { createSyncVariablePlugin } from '../plugins';
 import { defaultFormMeta } from '../nodes/default-form-meta';
 import { WorkflowNodeType } from '../nodes';
 import { SelectorBoxPopover } from '../components/selector-box-popover';
 import { BaseNode, CommentRender, GroupNodeRender, LineAddButton, NodePanel } from '../components';
+import { BlockNodeRender } from '../components/block-manager';
+import { BlockRegistryAdapter } from '../adapters/block-registry-adapter';
 
 export function useEditorProps(
   initialData: FlowDocumentJSON,
-  nodeRegistries: FlowNodeRegistry[]
+  staticNodeRegistries: FlowNodeRegistry[]
 ): FreeLayoutProps {
-  return useMemo<FreeLayoutProps>(
-    () => ({
+  // 合并的节点注册表
+  const [nodeRegistries, setNodeRegistries] = useState<FlowNodeRegistry[]>(staticNodeRegistries);
+  // 加载状态
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 从服务器加载块定义
+  useEffect(() => {
+    const loadBlockDefinitions = async () => {
+      try {
+        setIsLoading(true);
+
+        // 创建 BlockService 实例
+        const apiService = new ApiService();
+        const blockService = new BlockService(apiService);
+
+        // 加载所有块定义
+        const blockDefinitions = await blockService.loadBlockDefinitions();
+
+        // 转换为节点注册表
+        const dynamicRegistries = BlockRegistryAdapter.blocksToRegistries(blockDefinitions);
+
+        // 合并静态和动态注册表
+        setNodeRegistries([...staticNodeRegistries, ...dynamicRegistries]);
+      } catch (error) {
+        console.error('加载块定义失败:', error);
+        // 如果加载失败，仍使用静态注册表
+        setNodeRegistries(staticNodeRegistries);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadBlockDefinitions();
+  }, [staticNodeRegistries]);
+
+  return useMemo<FreeLayoutProps>(() => ({
       /**
        * Whether to enable the background
        */
@@ -39,6 +75,11 @@ export function useEditorProps(
        * 初始化数据
        */
       initialData,
+    /**
+     * Loading status
+     * 加载状态
+     */
+    loading: isLoading,
       /**
        * Node registries
        * 节点注册
@@ -105,7 +146,7 @@ export function useEditorProps(
         /**
          * Render Node
          */
-        renderDefaultNode: BaseNode,
+      renderDefaultNode: BlockNodeRender, // 使用支持服务器块定义的节点渲染器
         renderNodes: {
           [WorkflowNodeType.Comment]: CommentRender,
         },
@@ -144,6 +185,8 @@ export function useEditorProps(
        */
       onBind: ({ bind }) => {
         bind(CustomService).toSelf().inSingletonScope();
+      bind(ApiService).toSelf().inSingletonScope();
+      bind(BlockService).toSelf().inSingletonScope();
       },
       /**
        * Playground init
@@ -230,7 +273,5 @@ export function useEditorProps(
           groupNodeRender: GroupNodeRender,
         }),
       ],
-    }),
-    []
-  );
+  }), [nodeRegistries, isLoading, initialData]);
 }

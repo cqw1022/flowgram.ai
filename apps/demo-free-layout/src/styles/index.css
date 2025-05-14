@@ -46,3 +46,175 @@
     justify-content: center;
     align-items: center;
 }
+
+/* 默认节点样式 */
+.default-node {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  min-width: 150px;
+  max-width: 250px;
+}
+
+.default-node .node-header {
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.default-node .node-type {
+  font-size: 12px;
+  color: #666;
+}
+
+/* 内置节点类型样式 */
+.node-type-start {
+  background-color: #e6f7ff;
+  border-color: #91d5ff;
+}
+
+.node-type-end {
+  background-color: #f6ffed;
+  border-color: #b7eb8f;
+}
+
+.node-type-condition {
+  background-color: #fff7e6;
+  border-color: #ffd591;
+}
+
+.node-type-loop {
+  background-color: #f9f0ff;
+  border-color: #d3adf7;
+}
+
+.node-type-llm {
+  background-color: #fcffe6;
+  border-color: #eaff8f;
+}
+
+.node-type-comment {
+  background-color: #fffbe6;
+  border-color: #ffe58f;
+}
+
+/* 块节点样式 */
+.block-node {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0;
+  min-width: 180px;
+}
+
+.block-node .block-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  border-radius: 6px 6px 0 0;
+}
+
+.block-node .block-executor-icon {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.block-node .block-title {
+  font-weight: bold;
+  font-size: 14px;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.block-node .block-body {
+  padding: 10px;
+}
+
+.block-node .block-inputs,
+.block-node .block-outputs {
+  margin-bottom: 5px;
+}
+
+.block-node .block-port {
+  display: flex;
+  align-items: center;
+  margin: 3px 0;
+}
+
+.block-node .block-input {
+  justify-content: flex-start;
+}
+
+.block-node .block-output {
+  justify-content: flex-end;
+}
+
+.block-node .port-handle {
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4299e1;
+}
+
+.block-node .port-label {
+  font-size: 12px;
+  color: #4a5568;
+  margin: 0 5px;
+}
+
+.block-node .block-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 10px;
+  border-top: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  border-radius: 0 0 6px 6px;
+  font-size: 11px;
+  color: #718096;
+}
+
+/* 执行器特定样式 */
+.executor-rust .block-header {
+  background-color: #feebc8;
+}
+
+.executor-python .block-header {
+  background-color: #e6f6ff;
+}
+
+.executor-nodejs .block-header {
+  background-color: #dcfce7;
+}
+
+.executor-shell .block-header {
+  background-color: #d1fae5;
+}
+
+/* 节点错误图标样式 */
+.node-error-icon {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #ff4d4f;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  font-weight: bold;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
