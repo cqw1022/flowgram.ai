@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Space, Typography, Toast } from '@douyinfe/semi-ui';
-import { IconPlus, IconEdit, IconDelete } from '@douyinfe/semi-icons';
+import { Table, Button, Modal, Form, Input, Select, Space, Typography, Toast, TextArea } from '@douyinfe/semi-ui';
+import { IconPlus, IconEdit, IconDelete, IconPlusCircle } from '@douyinfe/semi-icons';
 import { BlockDefinition, BlockInputDef, BlockOutputDef } from '../../typings/block';
 import { BlockService } from '../../services/block-service';
 import { useClientContext } from '@flowgram.ai/free-layout-editor';
@@ -18,11 +18,15 @@ export const BlockManager: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingBlock, setEditingBlock] = useState<BlockDefinition | null>(null);
 
-  // 使用明确的类型注解解决嵌套过深问题
-  const formRef = useRef<{
-    setValues: (values: Record<string, any>) => void;
-    reset: () => void;
-  }>(null);
+  // 多个输入/输出管理
+  const [inputs, setInputs] = useState<{id: string, handle: string, type: string, optional: boolean, description: string}[]>([]);
+  const [outputs, setOutputs] = useState<{id: string, handle: string, type: string, description: string}[]>([]);
+
+  // 脚本内容
+  const [scriptContent, setScriptContent] = useState('');
+
+  // 使用formRef代替Form.useForm
+  const formRef = useRef<Form>(null);
 
   // 加载块定义
   const loadBlocks = async () => {
@@ -45,17 +49,43 @@ export const BlockManager: React.FC = () => {
   // 添加或更新块
   const handleSave = async (values: any) => {
     try {
+      // 验证输入和输出
+      if (inputs.some(input => !input.handle)) {
+        Toast.error(t('InputHandleRequired'));
+        return;
+      }
+
+      if (outputs.some(output => !output.handle)) {
+        Toast.error(t('OutputHandleRequired'));
+        return;
+      }
+
+      // 构建输入和输出定义
+      const inputDefs: BlockInputDef[] = inputs.map(input => ({
+        handle: input.handle,
+        type: input.type,
+        optional: input.optional,
+        description: input.description
+      }));
+
+      const outputDefs: BlockOutputDef[] = outputs.map(output => ({
+        handle: output.handle,
+        type: output.type,
+        description: output.description
+      }));
+
       // 构建块定义对象
       const blockData: BlockDefinition = {
-        type: values.type,
+        type: values.type || 'task_block',
         name: values.name,
         description: values.description,
         executor: {
           name: values.executor,
-          entry: values.entry || '',
+          entry: '', // 不需要Entry，由服务器指定
+          script: scriptContent || undefined
         },
-        inputs_def: parseInputs(values.inputs || ''),
-        outputs_def: parseOutputs(values.outputs || ''),
+        inputs_def: inputDefs,
+        outputs_def: outputDefs,
       };
 
       if (editingBlock) {
@@ -90,39 +120,133 @@ export const BlockManager: React.FC = () => {
     }
   };
 
+  // 添加新输入
+  const addInput = () => {
+    setInputs([...inputs, {
+      id: `input_${Date.now()}`,
+      handle: '',
+      type: 'string',
+      optional: false,
+      description: ''
+    }]);
+  };
+
+  // 删除输入
+  const removeInput = (id: string) => {
+    setInputs(inputs.filter(input => input.id !== id));
+  };
+
+  // 更新输入值
+  const updateInput = (id: string, field: string, value: any) => {
+    setInputs(inputs.map(input =>
+      input.id === id ? { ...input, [field]: value } : input
+    ));
+  };
+
+  // 添加新输出
+  const addOutput = () => {
+    setOutputs([...outputs, {
+      id: `output_${Date.now()}`,
+      handle: '',
+      type: 'string',
+      description: ''
+    }]);
+  };
+
+  // 删除输出
+  const removeOutput = (id: string) => {
+    setOutputs(outputs.filter(output => output.id !== id));
+  };
+
+  // 更新输出值
+  const updateOutput = (id: string, field: string, value: any) => {
+    setOutputs(outputs.map(output =>
+      output.id === id ? { ...output, [field]: value } : output
+    ));
+  };
+
   // 打开编辑模态框
   const openEditModal = (block: BlockDefinition) => {
     setEditingBlock(block);
-    // 使用延时确保Form组件已经渲染
+
+    // 设置输入和输出
+    if (block.inputs_def) {
+      setInputs(block.inputs_def.map((input, index) => ({
+        id: `input_${index}_${Date.now()}`,
+        handle: input.handle,
+        type: input.type || 'string',
+        optional: input.optional,
+        description: input.description || ''
+      })));
+    } else {
+      setInputs([]);
+    }
+
+    if (block.outputs_def) {
+      setOutputs(block.outputs_def.map((output, index) => ({
+        id: `output_${index}_${Date.now()}`,
+        handle: output.handle,
+        type: output.type || 'string',
+        description: output.description || ''
+      })));
+    } else {
+      setOutputs([]);
+    }
+
+    // 设置脚本内容
+    setScriptContent(block.executor.script || '');
+
+    // 使用setTimeout确保DOM已渲染
     setTimeout(() => {
       if (formRef.current) {
-        formRef.current.setValues({
-          type: block.type,
-          name: block.name,
-          description: block.description,
-          executor: block.executor.name,
-          entry: block.executor.entry,
-          inputs: formatInputs(block.inputs_def),
-          outputs: formatOutputs(block.outputs_def),
-        });
+        // 获取表单API
+        const formApi = formRef.current.formApi;
+        if (formApi) {
+          // 设置初始值
+          formApi.setValue('type', block.type);
+          formApi.setValue('name', block.name);
+          formApi.setValue('description', block.description || '');
+          formApi.setValue('executor', block.executor.name);
+        }
       }
     }, 0);
+
     setModalVisible(true);
   };
 
   // 打开添加模态框
   const openAddModal = () => {
     setEditingBlock(null);
-    // 使用延时确保Form组件已经渲染
+    // 清空输入和输出
+    setInputs([{
+      id: `input_${Date.now()}`,
+      handle: 'input',
+      type: 'string',
+      optional: false,
+      description: ''
+    }]);
+    setOutputs([{
+      id: `output_${Date.now()}`,
+      handle: 'output',
+      type: 'string',
+      description: ''
+    }]);
+    // 清空脚本内容
+    setScriptContent('');
+
+    // 重置表单并设置默认值
     setTimeout(() => {
       if (formRef.current) {
-        formRef.current.reset();
-        // 设置默认类型为task_block
-        formRef.current.setValues({
-          type: 'task_block'
-        });
+        // 获取表单API
+        const formApi = formRef.current.formApi;
+        if (formApi) {
+          // 使用formApi设置默认值
+          formApi.setValue('type', 'task_block');
+          formApi.setValue('executor', 'python');
+        }
       }
     }, 0);
+
     setModalVisible(true);
   };
 
@@ -263,7 +387,8 @@ export const BlockManager: React.FC = () => {
         visible={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
-        width={700}
+        width={800}
+        bodyStyle={{ maxHeight: 'calc(100vh - 200px)', overflow: 'auto' }}
       >
         <Form
           ref={formRef}
@@ -283,7 +408,7 @@ export const BlockManager: React.FC = () => {
             field="name"
             label={t('BlockName')}
             rules={[{ required: true, message: `${t('Please input')} ${t('BlockName')}` }]}
-            placeholder={`${t('Input')} ${t('BlockName')}, ${t('e.g.')}: HTTP ${t('Request')}`}
+            placeholder={`${t('Input')} ${t('BlockName')}, ${t('e.g.')}: Python #1`}
           />
 
           <Form.TextArea
@@ -305,27 +430,169 @@ export const BlockManager: React.FC = () => {
             <Select.Option value="shell">Shell</Select.Option>
           </Form.Select>
 
-          <Form.Input
-            field="entry"
-            label={t('BlockEntry')}
-            placeholder={`${t('Input')} ${t('BlockEntry')}, ${t('e.g.')}: main.py`}
-          />
+          <div style={{ marginTop: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography.Title heading={6}>{t('BlockInputs')}</Typography.Title>
+              <Button
+                type="primary"
+                icon={<IconPlusCircle />}
+                onClick={addInput}
+                size="small"
+              >
+                {t('Add')}
+              </Button>
+            </div>
 
-          <Form.TextArea
-            field="inputs"
-            label={t('BlockInputs')}
-            placeholder={t('BlockInputs')}
-            rows={4}
-            extraText={t('InputsFormat')}
-          />
+            {inputs.map((input, index) => (
+              <div key={input.id} style={{
+                border: '1px solid #e0e0e0',
+                padding: '16px',
+                borderRadius: '4px',
+                marginBottom: '16px',
+                position: 'relative'
+              }}>
+                <div style={{ position: 'absolute', right: '10px', top: '10px' }}>
+                  {inputs.length > 1 && (
+                    <Button
+                      type="danger"
+                      icon={<IconDelete />}
+                      onClick={() => removeInput(input.id)}
+                      size="small"
+                    />
+                  )}
+                </div>
 
-          <Form.TextArea
-            field="outputs"
-            label={t('BlockOutputs')}
-            placeholder={t('BlockOutputs')}
-            rows={4}
-            extraText={t('OutputsFormat')}
-          />
+                <div style={{ marginBottom: '10px' }}>
+                  <div style={{ marginBottom: '4px' }}>{t('handle')}</div>
+                  <Input
+                    placeholder="input"
+                    value={input.handle}
+                    onChange={(value) => updateInput(input.id, 'handle', value)}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '10px' }}>
+                  <div style={{ marginBottom: '4px' }}>{t('typeField')}</div>
+                  <Select
+                    value={input.type}
+                    onChange={(value) => updateInput(input.id, 'type', value as string)}
+                    style={{ width: '100%' }}
+                  >
+                    <Select.Option value="string">字符串</Select.Option>
+                    <Select.Option value="number">数字</Select.Option>
+                    <Select.Option value="boolean">布尔值</Select.Option>
+                    <Select.Option value="object">对象</Select.Option>
+                    <Select.Option value="array">数组</Select.Option>
+                  </Select>
+                </div>
+
+                <div style={{ marginBottom: '10px' }}>
+                  <div style={{ marginBottom: '4px' }}>{t('Optional')}</div>
+                  <Select
+                    value={input.optional ? "true" : "false"}
+                    onChange={(value) => updateInput(input.id, 'optional', value === "true")}
+                    style={{ width: '100%' }}
+                  >
+                    <Select.Option value="true">是</Select.Option>
+                    <Select.Option value="false">否</Select.Option>
+                  </Select>
+                </div>
+
+                <div>
+                  <div style={{ marginBottom: '4px' }}>{t('descriptionField')}</div>
+                  <Input
+                    placeholder="输入描述"
+                    value={input.description}
+                    onChange={(value) => updateInput(input.id, 'description', value)}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography.Title heading={6}>{t('BlockOutputs')}</Typography.Title>
+              <Button
+                type="primary"
+                icon={<IconPlusCircle />}
+                onClick={addOutput}
+                size="small"
+              >
+                {t('Add')}
+              </Button>
+            </div>
+
+            {outputs.map((output, index) => (
+              <div key={output.id} style={{
+                border: '1px solid #e0e0e0',
+                padding: '16px',
+                borderRadius: '4px',
+                marginBottom: '16px',
+                position: 'relative'
+              }}>
+                <div style={{ position: 'absolute', right: '10px', top: '10px' }}>
+                  {outputs.length > 1 && (
+                    <Button
+                      type="danger"
+                      icon={<IconDelete />}
+                      onClick={() => removeOutput(output.id)}
+                      size="small"
+                    />
+                  )}
+                </div>
+
+                <div style={{ marginBottom: '10px' }}>
+                  <div style={{ marginBottom: '4px' }}>{t('handle')}</div>
+                  <Input
+                    placeholder="output"
+                    value={output.handle}
+                    onChange={(value) => updateOutput(output.id, 'handle', value)}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '10px' }}>
+                  <div style={{ marginBottom: '4px' }}>{t('typeField')}</div>
+                  <Select
+                    value={output.type}
+                    onChange={(value) => updateOutput(output.id, 'type', value as string)}
+                    style={{ width: '100%' }}
+                  >
+                    <Select.Option value="string">字符串</Select.Option>
+                    <Select.Option value="number">数字</Select.Option>
+                    <Select.Option value="boolean">布尔值</Select.Option>
+                    <Select.Option value="object">对象</Select.Option>
+                    <Select.Option value="array">数组</Select.Option>
+                  </Select>
+                </div>
+
+                <div>
+                  <div style={{ marginBottom: '4px' }}>{t('descriptionField')}</div>
+                  <Input
+                    placeholder="输出描述"
+                    value={output.description}
+                    onChange={(value) => updateOutput(output.id, 'description', value)}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: 20 }}>
+            <Typography.Title heading={6}>{t('ScriptContent')}</Typography.Title>
+            <TextArea
+              value={scriptContent}
+              onChange={setScriptContent}
+              placeholder={`# ${t('EnterPythonScript')}`}
+              rows={10}
+              style={{
+                fontFamily: 'monospace',
+                backgroundColor: '#282c34',
+                color: '#abb2bf',
+                padding: '10px'
+              }}
+            />
+          </div>
 
           <div style={{ marginTop: 20, textAlign: 'right' }}>
             <Space>

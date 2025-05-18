@@ -72,6 +72,18 @@ export default {
     ConfirmDelete: 'Are you sure you want to delete this block?',
     InputsFormat: 'Format: handle|type|optional|description, each input on a new line',
     OutputsFormat: 'Format: handle|type|description, each output on a new line',
+    ScriptContent: 'Script Content',
+    EnterPythonScript: 'Enter Python script code here',
+    InputHandleRequired: 'Input handle cannot be empty',
+    OutputHandleRequired: 'Output handle cannot be empty',
+
+    // Interface fields
+    handle: 'Handle',
+    typeField: 'Type',
+    descriptionField: 'Description',
+    Optional: 'Optional',
+    InputField: 'Input',
+    OutputField: 'Output',
 
     // Form
     'Please input': 'Please input',

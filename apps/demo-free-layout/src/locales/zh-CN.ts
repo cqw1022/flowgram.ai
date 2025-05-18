@@ -72,6 +72,18 @@ export default {
     ConfirmDelete: '确定要删除此任务块吗？',
     InputsFormat: '格式：handle|类型|是否可选|描述，每行一个输入',
     OutputsFormat: '格式：handle|类型|描述，每行一个输出',
+    ScriptContent: '脚本内容',
+    EnterPythonScript: '在此处输入Python脚本代码',
+    InputHandleRequired: '输入句柄不能为空',
+    OutputHandleRequired: '输出句柄不能为空',
+
+    // Interface fields
+    handle: '句柄',
+    typeField: '类型',
+    descriptionField: '描述',
+    Optional: '是否可选',
+    InputField: '输入',
+    OutputField: '输出',
 
     // Form
     'Please input': '请输入',
