@@ -5,6 +5,7 @@ import { BlockDefinition, BlockInputDef, BlockOutputDef } from '../../typings/bl
 import { BlockService } from '../../services/block-service';
 import { useClientContext } from '@flowgram.ai/free-layout-editor';
 import { useI18n } from '../../context/i18n-context';
+import Editor from '@monaco-editor/react';
 
 /**
  * 块管理组件
@@ -580,16 +581,20 @@ export const BlockManager: React.FC = () => {
 
           <div style={{ marginTop: 20 }}>
             <Typography.Title heading={6}>{t('ScriptContent')}</Typography.Title>
-            <TextArea
+            <Editor
+              height="300px"
+              width="100%"
+              defaultLanguage="python"
               value={scriptContent}
-              onChange={setScriptContent}
-              placeholder={`# ${t('EnterPythonScript')}`}
-              rows={10}
-              style={{
-                fontFamily: 'monospace',
-                backgroundColor: '#282c34',
-                color: '#abb2bf',
-                padding: '10px'
+              onChange={(value) => setScriptContent(value || '')}
+              options={{
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                fontSize: 14,
+                tabSize: 2,
+                automaticLayout: true,
+                wordWrap: 'on',
+                theme: 'vs-dark'
               }}
             />
           </div>

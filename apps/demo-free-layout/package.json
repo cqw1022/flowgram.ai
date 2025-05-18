@@ -39,6 +39,7 @@
     "@flowgram.ai/free-container-plugin": "workspace:*",
     "@flowgram.ai/free-group-plugin": "workspace:*",
     "@flowgram.ai/form-materials": "workspace:*",
+    "@monaco-editor/react": "^4.7.0",
     "lodash-es": "^4.17.21",
     "nanoid": "^4.0.2",
     "react": "^18",
