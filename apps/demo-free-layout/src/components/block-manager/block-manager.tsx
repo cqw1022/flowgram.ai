@@ -90,9 +90,12 @@ export const BlockManager: React.FC = () => {
       };
 
       if (editingBlock) {
-        // 编辑现有块
-        const blockId = `${editingBlock.type}_${editingBlock.executor.name}`;
-        await blockService.updateTaskBlock(blockId, blockData);
+        // 编辑现有块，直接用block_id
+        if (!editingBlock.block_id) {
+          Toast.error('block_id缺失，无法编辑');
+          return;
+        }
+        await blockService.updateTaskBlock(editingBlock.block_id, blockData);
         Toast.success(t('UpdateBlockSuccess'));
       } else {
         // 添加新块
@@ -111,8 +114,11 @@ export const BlockManager: React.FC = () => {
   // 删除块
   const handleDelete = async (block: BlockDefinition) => {
     try {
-      const blockId = `${block.type}_${block.executor.name}`;
-      await blockService.deleteTaskBlock(blockId);
+      if (!block.block_id) {
+        Toast.error('block_id缺失，无法删除');
+        return;
+      }
+      await blockService.deleteTaskBlock(block.block_id);
       Toast.success(t('DeleteBlockSuccess'));
       loadBlocks(); // 重新加载数据
     } catch (error) {

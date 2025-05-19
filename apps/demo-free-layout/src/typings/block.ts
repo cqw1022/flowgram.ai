@@ -19,6 +19,7 @@ export interface BlockOutputDef {
 }
 
 export interface BlockDefinition {
+  block_id?: string; // 新增，后端返回的唯一标识
   type: string;               // 块类型（task_block, service_block, flow_block）
   executor: BlockExecutor;    // 执行器配置
   inputs_def: BlockInputDef[]; // 输入定义

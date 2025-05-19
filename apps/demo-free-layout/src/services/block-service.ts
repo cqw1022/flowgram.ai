@@ -17,6 +17,7 @@ export class BlockService {
   private convertServerBlockToClientModel(serverBlock: ServerBlockDefinition): BlockDefinition {
     // 服务器与客户端模型结构基本一致，直接转换
     return {
+      block_id: serverBlock.block_id,
       type: serverBlock.type,
       executor: serverBlock.executor,
       inputs_def: serverBlock.inputs_def,
@@ -53,7 +54,6 @@ export class BlockService {
     try {
       // 调用 API 获取所有块定义，根据文档应该使用 /api/blocks
       const serverBlocks = await this.apiService.get<ServerBlockDefinition[]>('/api/blocks');
-
       // 转换服务器数据为前端模型
       this.blockDefinitions = serverBlocks.map(block => this.convertServerBlockToClientModel(block));
       this.isLoaded = true;
@@ -69,14 +69,8 @@ export class BlockService {
    * 添加任务块
    */
   async addTaskBlock(blockData: BlockDefinition): Promise<BlockDefinition> {
-    // 确保包含block_id
-    const blockId = blockData.type + '_' + blockData.executor.name;
-
-    // 转换为服务器格式
-    const serverData = {
-      block_id: blockId,
-      ...this.convertClientModelToServerBlock(blockData)
-    };
+    // 只传递块定义内容，不传 block_id
+    const serverData = this.convertClientModelToServerBlock(blockData);
 
     try {
       // 发送请求
@@ -113,8 +107,7 @@ export class BlockService {
 
       // 更新本地缓存
       if (this.isLoaded) {
-        const index = this.blockDefinitions.findIndex(block =>
-          `${block.type}_${block.executor.name}` === blockId);
+        const index = this.blockDefinitions.findIndex(block => block.block_id === blockId);
         if (index !== -1) {
           this.blockDefinitions[index] = clientResponse;
         }
@@ -136,8 +129,7 @@ export class BlockService {
 
       // 从本地缓存中删除
       if (this.isLoaded) {
-        this.blockDefinitions = this.blockDefinitions.filter(block =>
-          `${block.type}_${block.executor.name}` !== blockId);
+        this.blockDefinitions = this.blockDefinitions.filter(block => block.block_id !== blockId);
       }
     } catch (error) {
       console.error('删除任务块失败:', error);
