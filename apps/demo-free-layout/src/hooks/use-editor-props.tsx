@@ -26,10 +26,12 @@ export function useEditorProps(
   initialData: FlowDocumentJSON,
   staticNodeRegistries: FlowNodeRegistry[]
 ): FreeLayoutProps {
+
   // 合并的节点注册表
   const [nodeRegistries, setNodeRegistries] = useState<FlowNodeRegistry[]>(staticNodeRegistries);
   // 加载状态
   const [isLoading, setIsLoading] = useState(true);
+
 
   // 从服务器加载块定义
   useEffect(() => {
@@ -48,7 +50,9 @@ export function useEditorProps(
         const dynamicRegistries = BlockRegistryAdapter.blocksToRegistries(blockDefinitions);
 
         // 合并静态和动态注册表
-        setNodeRegistries([...staticNodeRegistries, ...dynamicRegistries]);
+        const mergedRegistries = [...staticNodeRegistries, ...dynamicRegistries];
+
+        setNodeRegistries(mergedRegistries);
       } catch (error) {
         console.error('加载块定义失败:', error);
         // 如果加载失败，仍使用静态注册表
@@ -61,7 +65,9 @@ export function useEditorProps(
     loadBlockDefinitions();
   }, [staticNodeRegistries]);
 
-  return useMemo<FreeLayoutProps>(() => ({
+
+  const props = useMemo<FreeLayoutProps>(() => {
+    return {
       /**
        * Whether to enable the background
        */
@@ -75,11 +81,11 @@ export function useEditorProps(
        * 初始化数据
        */
       initialData,
-    /**
-     * Loading status
-     * 加载状态
-     */
-    loading: isLoading,
+      /**
+       * Loading status
+       * 加载状态
+       */
+      loading: isLoading,
       /**
        * Node registries
        * 节点注册
@@ -273,5 +279,8 @@ export function useEditorProps(
           groupNodeRender: GroupNodeRender,
         }),
       ],
-  }), [nodeRegistries, isLoading, initialData]);
+    };
+  }, [nodeRegistries, isLoading, initialData]);
+
+  return props;
 }

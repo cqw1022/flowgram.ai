@@ -5,7 +5,7 @@ import { NodePanelRenderProps } from '@flowgram.ai/free-node-panel-plugin';
 import { useClientContext } from '@flowgram.ai/free-layout-editor';
 
 import { FlowNodeRegistry } from '../../typings';
-import { visibleNodeRegistries } from '../../nodes';
+import { WorkflowNodeType } from '../../nodes/constants';
 
 const NodeWrap = styled.div`
   width: 100%;
@@ -56,10 +56,11 @@ const NodesWrap = styled.div`
 
 interface NodeListProps {
   onSelect: NodePanelRenderProps['onSelect'];
+  nodeRegistries: FlowNodeRegistry[];
 }
 
 export const NodeList: FC<NodeListProps> = (props) => {
-  const { onSelect } = props;
+  const { onSelect, nodeRegistries } = props;
   const context = useClientContext();
   const handleClick = (e: React.MouseEvent, registry: FlowNodeRegistry) => {
     const json = registry.onAdd?.(context);
@@ -69,9 +70,14 @@ export const NodeList: FC<NodeListProps> = (props) => {
       nodeJSON: json,
     });
   };
+
+  const visibleNodes = nodeRegistries.filter(
+    (r) => r.type !== WorkflowNodeType.Comment
+  );
+
   return (
     <NodesWrap style={{ width: 80 * 2 + 20 }}>
-      {visibleNodeRegistries.map((registry) => (
+      {visibleNodes.map((registry) => (
         <Node
           key={registry.type}
           disabled={!(registry.canAdd?.(context) ?? true)}

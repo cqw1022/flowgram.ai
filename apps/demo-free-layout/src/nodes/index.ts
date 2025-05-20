@@ -8,7 +8,7 @@ import { ConditionNodeRegistry } from './condition';
 import { CommentNodeRegistry } from './comment';
 export { WorkflowNodeType } from './constants';
 
-export const nodeRegistries: FlowNodeRegistry[] = [
+export const staticNodeRegistries: FlowNodeRegistry[] = [
   ConditionNodeRegistry,
   StartNodeRegistry,
   EndNodeRegistry,
@@ -16,7 +16,3 @@ export const nodeRegistries: FlowNodeRegistry[] = [
   LoopNodeRegistry,
   CommentNodeRegistry,
 ];
-
-export const visibleNodeRegistries = nodeRegistries.filter(
-  (r) => r.type !== WorkflowNodeType.Comment
-);

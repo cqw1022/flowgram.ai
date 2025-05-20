@@ -2,6 +2,7 @@ import { FlowNodeRegistry, FlowNodeJSON } from '../typings';
 import { BlockDefinition } from '../typings/block';
 import { JsonSchema } from '../typings/json-schema';
 import { nanoid } from 'nanoid';
+import iconLLM from '../assets/icon-llm.jpg';
 import { FormMeta, ValidateTrigger, FormRenderProps } from '@flowgram.ai/free-layout-editor';
 import React from 'react';
 
@@ -80,6 +81,11 @@ export class BlockRegistryAdapter {
       // 类型和标识
       type: nodeType,
 
+      info: {
+        icon: iconLLM,
+        description:
+          'Call the large language model and use variables and prompt words to generate responses.',
+      },
       // 元数据
       meta: {
         title: block.name || block.type,

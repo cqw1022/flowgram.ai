@@ -6,17 +6,26 @@ import { Popover } from '@douyinfe/semi-ui';
 import { NodePlaceholder } from './node-placeholder';
 import { NodeList } from './node-list';
 import './index.less';
+import { FlowNodeRegistry } from '../../typings';
 
 export const NodePanel: FC<NodePanelRenderProps> = (props) => {
   const { onSelect, position, onClose, panelProps } = props;
-  const { enableNodePlaceholder } = panelProps;
+
+  console.log('NodePanel received panelProps:', panelProps);
+
+  const { enableNodePlaceholder, nodeRegistries } = panelProps as {
+    enableNodePlaceholder?: boolean;
+    nodeRegistries: FlowNodeRegistry[];
+  };
+
+  console.log('NodePanel extracted nodeRegistries:', nodeRegistries);
 
   return (
     <Popover
       trigger="click"
       visible={true}
       onVisibleChange={(v) => (v ? null : onClose())}
-      content={<NodeList onSelect={onSelect} />}
+      content={<NodeList onSelect={onSelect} nodeRegistries={nodeRegistries} />}
       placement="right"
       popupAlign={{ offset: [30, 0] }}
       overlayStyle={{

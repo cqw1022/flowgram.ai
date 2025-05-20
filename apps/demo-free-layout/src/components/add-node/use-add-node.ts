@@ -11,6 +11,8 @@ import {
   WorkflowNodeJSON,
 } from '@flowgram.ai/free-layout-editor';
 
+import { FlowNodeRegistry } from '../../typings'; // 导入 FlowNodeRegistry 类型
+
 // hook to get panel position from mouse event - 从鼠标事件获取面板位置的 hook
 const useGetPanelPosition = () => {
   const playground = usePlayground();
@@ -42,7 +44,8 @@ const useSelectNode = () => {
 };
 
 // main hook for adding new nodes - 添加新节点的主 hook
-export const useAddNode = () => {
+// 接收 nodeRegistries 参数
+export const useAddNode = (nodeRegistries: FlowNodeRegistry[]) => {
   const workflowDocument = useService(WorkflowDocument);
   const nodePanelService = useService<WorkflowNodePanelService>(WorkflowNodePanelService);
   const playground = usePlayground();
@@ -58,7 +61,8 @@ export const useAddNode = () => {
         nodePanelService.callNodePanel({
           position: panelPosition,
           enableMultiAdd: true,
-          panelProps: {},
+          // 将 nodeRegistries 传递给 panelProps
+          panelProps: { nodeRegistries },
           // handle node selection from panel - 处理从面板中选择节点
           onSelect: async (panelParams?: NodePanelResult) => {
             if (!panelParams) {
@@ -80,6 +84,7 @@ export const useAddNode = () => {
         });
       });
     },
-    [getPanelPosition, nodePanelService, playground.config.zoom, workflowDocument, select]
+    // 添加 nodeRegistries 到依赖数组
+    [getPanelPosition, nodePanelService, playground.config.zoom, workflowDocument, select, nodeRegistries]
   );
 };

@@ -19,9 +19,11 @@ import { Comment } from './comment';
 import { AutoLayout } from './auto-layout';
 import { BlockManagerButton } from './block-manager-button';
 import { useI18n } from '../../context/i18n-context';
+import { useNodeRegistries } from '../../context/node-registries-context';
 
 export const DemoTools = () => {
   const { history, playground } = useClientContext();
+  const nodeRegistries = useNodeRegistries();
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [minimapVisible, setMinimapVisible] = useState(true);
@@ -72,7 +74,9 @@ export const DemoTools = () => {
           />
         </Tooltip>
         <Divider layout="vertical" style={{ height: '16px' }} margin={3} />
-        <AddNode disabled={playground.config.readonly} />
+        {nodeRegistries && (
+          <AddNode disabled={playground.config.readonly} nodeRegistries={nodeRegistries} />
+        )}
         <BlockManagerButton disabled={playground.config.readonly} />
         <Divider layout="vertical" style={{ height: '16px' }} margin={3} />
         <Save disabled={playground.config.readonly} />
