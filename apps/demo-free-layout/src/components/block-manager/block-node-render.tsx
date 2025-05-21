@@ -25,19 +25,16 @@ export const BlockNodeRender: React.FC<BlockNodeProps> = (props) => {
   const nodeAny = node as any;
 
   // 尝试从自定义属性中获取块定义
-  const blockDefinition = nodeAny.custom?.blockDefinition as BlockDefinition | undefined;
+  const blockDefinition = form?.initialValues.blockDefinition as BlockDefinition | undefined;
 
   // 获取节点类型信息
   const nodeType = nodeAny.type || '';
   const nodeTitle = nodeAny.data?.title;
 
-  // 检查是否为内置节点类型（start、end、condition、llm、loop、comment）
-  const isBuiltInNode = ['start', 'end', 'condition', 'llm', 'loop', 'comment'].includes(nodeType);
-
   // 准备节点内容渲染
   const renderNodeContent = () => {
     // 如果是内置节点或没有块定义，使用默认渲染
-    if (isBuiltInNode || !blockDefinition) {
+    if (!blockDefinition) {
       return renderDefaultNode();
     }
 

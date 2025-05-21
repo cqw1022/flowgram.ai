@@ -53,6 +53,8 @@ export function useEditorProps(
         const mergedRegistries = [...staticNodeRegistries, ...dynamicRegistries];
 
         setNodeRegistries(mergedRegistries);
+
+        console.log('mergedRegistries', mergedRegistries);
       } catch (error) {
         console.error('加载块定义失败:', error);
         // 如果加载失败，仍使用静态注册表
@@ -65,6 +67,10 @@ export function useEditorProps(
     loadBlockDefinitions();
   }, [staticNodeRegistries]);
 
+  const renderNodes = {
+    [WorkflowNodeType.Comment]: CommentRender,
+    ["task_block_python"]: BlockNodeRender,
+  };
 
   const props = useMemo<FreeLayoutProps>(() => {
     return {
@@ -96,10 +102,21 @@ export function useEditorProps(
        * 提供默认的节点注册，这个会和 nodeRegistries 做合并
        */
       getNodeDefaultRegistry(type) {
+        if(renderNodes.hasOwnProperty(type)) {
+          return {
+            type,
+            meta: {
+              defaultExpanded: true,
+              renderKey: type,
+            },
+            formMeta: defaultFormMeta,
+          };
+        }
         return {
           type,
           meta: {
             defaultExpanded: true,
+
           },
           formMeta: defaultFormMeta,
         };
@@ -152,10 +169,8 @@ export function useEditorProps(
         /**
          * Render Node
          */
-      renderDefaultNode: BlockNodeRender, // 使用支持服务器块定义的节点渲染器
-        renderNodes: {
-          [WorkflowNodeType.Comment]: CommentRender,
-        },
+      renderDefaultNode: BaseNode, // 使用支持服务器块定义的节点渲染器
+        renderNodes: renderNodes,
       },
       /**
        * Node engine enable, you can configure formMeta in the FlowNodeRegistry

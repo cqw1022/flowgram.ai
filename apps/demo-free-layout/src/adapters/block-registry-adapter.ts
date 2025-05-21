@@ -168,6 +168,7 @@ export class BlockRegistryAdapter {
         inputs,
         outputs,
         inputsValues: {},
+        blockDefinition: block,
       },
     };
   }
