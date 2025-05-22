@@ -11,6 +11,8 @@ import { BlockService } from '../../services/block-service';
 import { useClientContext } from '@flowgram.ai/free-layout-editor';
 import { Toast } from '@douyinfe/semi-ui';
 
+import './block-node-render.css';
+
 interface BlockNodeProps {
   node: FlowNodeEntity;
 }

@@ -1,0 +1,43 @@
+.block-script {
+  margin-top: 10px; /* 在脚本区域上方增加外边距 */
+  padding: 10px; /* 增加内边距 */
+  background-color: #f0f0f0; /* 添加背景色方便查看效果 */
+  border-radius: 4px; /* 添加圆角 */
+}
+
+.block-script .script-header {
+  display: flex; /* 使用 flexbox 布局 */
+  justify-content: space-between; /* 标题和按钮分列两端 */
+  align-items: center; /* 垂直居中对齐 */
+  margin-bottom: 8px; /* 在头部下方增加外边距 */
+}
+
+.block-script .script-header span {
+  font-weight: bold; /* 标题加粗 */
+}
+
+.block-script .script-header .semi-button {
+  margin-left: 8px; /* 保存按钮左侧增加外边距 */
+}
+
+.block-node .block-body {
+  display: flex; /* 使用 Flexbox 布局 */
+  flex-direction: row; /* 子元素水平排列 */
+  align-items: flex-start; /* 子元素顶部对齐 */
+  padding: 10px; /* 增加内边距 */
+}
+
+.block-node .block-inputs,
+.block-node .block-outputs {
+  flex-shrink: 0; /* 不缩小 */
+  /* 可以设置固定宽度，或者根据内容自适应 */
+  /* width: 50px; */
+}
+
+.block-node .block-body > div:nth-child(2) { /* 选中中间的表单区域 */
+  flex-grow: 1; /* 填充剩余空间 */
+  margin: 0 10px; /* 左右增加外边距 */
+}
+
+/* 如果脚本区域也在block-body内部，需要进一步调整样式 */
+/* 根据 block-node-render.tsx 代码，脚本区域在 block-body 下方，所以上面的样式只影响 block-inputs, form, block-outputs */
