@@ -146,7 +146,7 @@ export const BlockNodeRender: React.FC<BlockNodeProps> = (props) => {
               value={editorContent}
               onChange={(value: string | undefined) => setEditorContent(value || '')}
               language={monacoLanguage}
-              height="200px"
+              height="100%"
               options={{
                 minimap: { enabled: false },
                 scrollBeyondLastLine: false,

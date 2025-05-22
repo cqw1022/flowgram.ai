@@ -55,6 +55,9 @@ export const NodeWrapper: React.FC<NodeWrapperProps> = (props) => {
         data-node-selected={String(selected)}
         style={{
           outline: form?.state.invalid ? '1px solid red' : 'none',
+          position: 'relative',
+          resize: 'both',
+          overflow: 'auto',
         }}
       >
         {children}

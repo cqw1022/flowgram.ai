@@ -12,8 +12,8 @@ export const NodeWrapperStyle = styled.div`
   justify-content: center;
   position: relative;
   min-width: 360px;
-  width: 100%;
-  height: auto;
+  width: fit-content;
+  height: fit-content;
 
   &.selected {
     border: 1px solid #4e40e5;
