@@ -13,7 +13,7 @@ import { createContainerNodePlugin } from '@flowgram.ai/free-container-plugin';
 import { onDragLineEnd } from '../utils';
 import { FlowNodeRegistry, FlowDocumentJSON } from '../typings';
 import { shortcuts } from '../shortcuts';
-import { CustomService, ApiService, BlockService } from '../services';
+import { CustomService, ApiService, BlockService, WorkflowService } from '../services'; // 确保导入 WorkflowService
 import { createSyncVariablePlugin } from '../plugins';
 import { defaultFormMeta } from '../nodes/default-form-meta';
 import { WorkflowNodeType } from '../nodes';
@@ -206,8 +206,9 @@ export function useEditorProps(
        */
       onBind: ({ bind }) => {
         bind(CustomService).toSelf().inSingletonScope();
-      bind(ApiService).toSelf().inSingletonScope();
-      bind(BlockService).toSelf().inSingletonScope();
+        bind(ApiService).toSelf().inSingletonScope();
+        bind(BlockService).toSelf().inSingletonScope();
+        bind(WorkflowService).toSelf().inSingletonScope(); // 添加 WorkflowService 的绑定
       },
       /**
        * Playground init
