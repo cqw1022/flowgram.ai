@@ -1,10 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
-
-import { useClientContext, getNodeForm, FlowNodeEntity } from '@flowgram.ai/free-layout-editor';
-import { Button, Badge } from '@douyinfe/semi-ui';
+import { useClientContext, getNodeForm, FlowNodeEntity, DocumentModel } from '@flowgram.ai/free-layout-editor';
+import { Button, Badge, Toast } from '@douyinfe/semi-ui';
 import { useI18n } from '../../context/i18n-context';
+import { WorkflowService, WorkflowDefinition} from '../../services/workflow-service'; // Import WorkflowService
 
-export function Save(props: { disabled: boolean }) {
+interface SaveProps {
+  disabled: boolean;
+  currentWorkflow: WorkflowDefinition | null; // Add prop for current workflow
+}
+
+export function Save(props: SaveProps) {
   const [errorCount, setErrorCount] = useState(0);
   const clientContext = useClientContext();
   const { t } = useI18n();
@@ -19,10 +24,40 @@ export function Save(props: { disabled: boolean }) {
    * Validate all node and Save
    */
   const onSave = useCallback(async () => {
+    if (!props.currentWorkflow) {
+      Toast.error(t('No workflow selected to save.'));
+      return;
+    }
+
     const allForms = clientContext.document.getAllNodes().map((node) => getNodeForm(node));
     await Promise.all(allForms.map(async (form) => form?.validate()));
-    console.log('>>>>> save data: ', clientContext.document.toJSON());
-  }, [clientContext]);
+
+    const errorFormsCount = allForms.filter((form) => form?.state.invalid).length;
+    if (errorFormsCount > 0) {
+      Toast.error(t('Please fix validation errors before saving.'));
+      return;
+    }
+
+    const workflowService = clientContext.container.get(WorkflowService);
+    const currentDocumentData = clientContext.document.toJSON() as { nodes: FlowNodeEntity[], edges: DocumentModel.EdgeModel[] };
+
+    const workflowUpdateData: Partial<WorkflowDefinition> = {
+      flow_id: props.currentWorkflow.flow_id,
+      name: props.currentWorkflow.name, // Assuming name might be updated elsewhere or is static for now
+      description: props.currentWorkflow.description,
+      nodes: currentDocumentData.nodes, // document.toJSON() likely already serializes nodes
+      edges: currentDocumentData.edges, // document.toJSON() likely already serializes edges
+    };
+
+    try {
+      await workflowService.updateWorkflow(props.currentWorkflow.flow_id, workflowUpdateData);
+      Toast.success(t('Workflow saved successfully!'));
+      console.log('>>>>> save data: ', workflowUpdateData);
+    } catch (error) {
+      console.error('Failed to save workflow:', error);
+      Toast.error(t('Failed to save workflow.'));
+    }
+  }, [clientContext, props.currentWorkflow, t]);
 
   /**
    * Listen single node validate

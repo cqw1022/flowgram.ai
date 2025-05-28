@@ -14,52 +14,50 @@ import { WorkflowListSidebar } from './components/sidebar/workflow-list-sidebar'
 import { Button } from '@douyinfe/semi-ui'; // Import Button for the toggle
 import { IconList } from '@douyinfe/semi-icons'; // Import an icon for the button
 import { useState } from 'react'; // Import useState for managing visibility
-import { WorkflowDefinition } from './services'; // Import WorkflowDefinition
+import { WorkflowDefinition } from './services/workflow-service'; // Assuming WorkflowDefinition is defined here or adjust path
 
 export const Editor = () => {
-  const editorProps = useEditorProps(initialData, staticNodeRegistries);
+  const [currentInitialData, setCurrentInitialData] = useState(initialData);
+  const [currentWorkflow, setCurrentWorkflow] = useState<WorkflowDefinition | null>(null); // Add state for current workflow
+  const [editorKey, setEditorKey] = useState(0); // Add a key state
+  const editorProps = useEditorProps(currentInitialData, staticNodeRegistries);
   const { t } = useI18n();
   const [isWorkflowSidebarVisible, setIsWorkflowSidebarVisible] = useState(false);
 
-  const handleWorkflowSelect = (workflow: WorkflowDefinition) => {
-    console.log('handleWorkflowSelect called with workflow:', workflow); // Log the workflow object
-    console.log('Current editorProps:', editorProps);
-    if (editorProps && editorProps.editor) {
-      editorProps.editor.clear(); // Clear current workflow
-      // Assuming workflow object has nodes and edges properties
-      // If the structure is different, this needs to be adjusted
-      if (workflow.nodes && workflow.edges) {
-        editorProps.editor.load({ nodes: workflow.nodes, edges: workflow.edges });
-      } else {
-        // Attempt to load the entire workflow object if nodes/edges are not direct properties
-        // This might be necessary if the 'workflow' object itself is the data structure expected by 'load'
-        // Or, if the API for 'listWorkflows' returns a structure that needs transformation
-        // For now, we'll assume 'load' can handle the raw workflow object or it needs specific parsing
-        // based on how 'WorkflowDefinition' is structured and what 'editor.load()' expects.
-        // As a fallback, if the direct properties aren't there, try loading the whole object.
-        // This part might need refinement based on the exact structure of WorkflowDefinition and editor.load() requirements.
-        console.warn('Workflow object does not have direct nodes/edges properties, attempting to load entire object. This might not work as expected.', workflow);
-        // editorProps.editor.load(workflow); // This line is commented out as it's speculative
-        // If loading the entire object is not correct, you might need to fetch the full workflow data using workflow.flow_id
-        // For example: const fullWorkflowData = await workflowService.getWorkflow(workflow.flow_id);
-        // And then: editorProps.editor.load(fullWorkflowData);
-      }
-    }
+  const handleWorkflowSelect = (workflow: any) => {
+    // Logic to handle workflow selection, e.g., load it into the editor
     console.log('Selected workflow:', workflow);
+    // Assuming workflow object has the structure of initialData (nodes, edges)
+    // You might need to fetch the full workflow data here if 'workflow' is just a summary
+    if (workflow && workflow.flow_id) { // Ensure workflow and flow_id exist
+      console.log('Loaded workflow into editor:', workflow);
+      setCurrentInitialData({ nodes: workflow.nodes || [], edges: workflow.edges || [] });
+      setCurrentWorkflow(workflow as WorkflowDefinition); // Set the current workflow
+      setEditorKey(prevKey => prevKey + 1); // Increment key to force re-render
+      console.log('Loaded workflow into editor:', workflow);
+    } else {
+      // Fallback or error handling if workflow data is not as expected
+      setCurrentInitialData(initialData);
+      setCurrentWorkflow(null); // Reset current workflow
+      setEditorKey(prevKey => prevKey + 1); // Increment key to force re-render
+      console.warn('Selected workflow does not contain nodes and edges, or flow_id is missing, loading default data.');
+    }
     setIsWorkflowSidebarVisible(false); // Optionally hide sidebar after selection
   };
 
   const handleWorkflowAdded = () => {
-    if (editorProps.editor) {
-      editorProps.editor.clear(); // Clear all nodes and edges
-    }
+    // if (editorProps.editor) {
+    //   editorProps.editor.clear(); // Clear all nodes and edges
+    // }
   };
+
+  console.error(editorProps);
 
   return (
     <div className="doc-free-feature-overview">
       <NodeRegistriesProvider value={editorProps.nodeRegistries}>
         {/* @ts-ignore */}
-        <FreeLayoutEditorProvider {...editorProps} panelProps={{ nodeRegistries: editorProps.nodeRegistries }}>
+        <FreeLayoutEditorProvider key={editorKey} {...editorProps} panelProps={{ nodeRegistries: editorProps.nodeRegistries }}>
           <SidebarProvider>
             <div className="demo-container">
               <div className="demo-header">
@@ -77,7 +75,7 @@ export const Editor = () => {
               </div>
               <EditorRenderer className="demo-editor" />
             </div>
-            <DemoTools />
+            <DemoTools currentWorkflow={currentWorkflow} />
             <SidebarRenderer />
             {isWorkflowSidebarVisible && (
               <div

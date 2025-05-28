@@ -13,7 +13,8 @@ import { createContainerNodePlugin } from '@flowgram.ai/free-container-plugin';
 import { onDragLineEnd } from '../utils';
 import { FlowNodeRegistry, FlowDocumentJSON } from '../typings';
 import { shortcuts } from '../shortcuts';
-import { CustomService, ApiService, BlockService, WorkflowService } from '../services'; // 确保导入 WorkflowService
+import { CustomService, ApiService, BlockService } from '../services'; // 确保导入 WorkflowService
+import { WorkflowService } from '../services/workflow-service';
 import { createSyncVariablePlugin } from '../plugins';
 import { defaultFormMeta } from '../nodes/default-form-meta';
 import { WorkflowNodeType } from '../nodes';

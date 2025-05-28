@@ -137,6 +137,14 @@ export class BlockService {
     }
   }
 
+  async getBlockDefinitionById(blockId: string): Promise<BlockDefinition | undefined> {
+    if (!this.isLoaded) {
+      await this.loadBlockDefinitions();
+    }
+
+    return this.blockDefinitions.find(block => block.block_id === blockId);
+  }
+
   /**
    * 获取特定类型的块定义
    */

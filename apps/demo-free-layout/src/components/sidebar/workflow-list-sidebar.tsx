@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { List, Spin, Typography, Button, Modal, Input, Form, Space } from '@douyinfe/semi-ui';
 import { IconPlus, IconDelete } from '@douyinfe/semi-icons';
-import { WorkflowService, WorkflowDefinition } from '../../services';
+import { WorkflowService, WorkflowDefinition } from '../../services/workflow-service';
 import { useClientContext } from '@flowgram.ai/free-layout-editor';
 
 interface WorkflowListSidebarProps {

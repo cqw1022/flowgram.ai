@@ -22,6 +22,7 @@ export const BlockNodeRender: React.FC<BlockNodeProps> = (props) => {
   const nodeRender = useNodeRender();
   const form = nodeRender.form;
   const { t } = useI18n();
+  console.log('form?.initialValues.blockDefinition?.executor?.script', form);
   const [editorContent, setEditorContent] = useState(form?.initialValues.blockDefinition?.executor?.script || '');
   const { container } = useClientContext();
   const blockService = container.get(BlockService);

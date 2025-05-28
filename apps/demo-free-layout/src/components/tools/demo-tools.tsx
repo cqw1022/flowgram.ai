@@ -20,8 +20,13 @@ import { AutoLayout } from './auto-layout';
 import { BlockManagerButton } from './block-manager-button';
 import { useI18n } from '../../context/i18n-context';
 import { useNodeRegistries } from '../../context/node-registries-context';
+import { WorkflowDefinition } from '../../services/workflow-service'; // Assuming WorkflowDefinition is defined here or adjust path
 
-export const DemoTools = () => {
+interface DemoToolsProps {
+  currentWorkflow: WorkflowDefinition | null;
+}
+
+export const DemoTools: React.FC<DemoToolsProps> = ({ currentWorkflow }) => {
   const { history, playground, editor } = useClientContext();
   const nodeRegistries = useNodeRegistries();
   const [canUndo, setCanUndo] = useState(false);
@@ -89,7 +94,7 @@ export const DemoTools = () => {
         )}
         <BlockManagerButton disabled={playground.config.readonly} />
         <Divider layout="vertical" style={{ height: '16px' }} margin={3} />
-        <Save disabled={playground.config.readonly} />
+        <Save disabled={playground.config.readonly} currentWorkflow={currentWorkflow} />
         <Tooltip content={t('Run Workflow')}>
           <IconButton
             type="tertiary"
