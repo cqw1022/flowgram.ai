@@ -75,7 +75,7 @@ export interface RunWorkflowPayload {
   debug?: boolean;
   wait_for_client?: boolean;
   use_cache?: boolean;
-  input_values?: Record<string, any>; // object in JSON, Record<string, any> in TS
+  input_values?: Record<string, any>;
   default_package?: string;
   session_dir?: string;
   temp_root?: string;
@@ -87,7 +87,15 @@ export interface RunWorkflowPayload {
 // 根据 api.md 定义 /api/flows 的响应体
 export interface RunWorkflowResponse {
   session_id: string;
-  status: string; // e.g., "running"
+  status: string;
+}
+
+// 根据 api.md 定义 /api/flows/{session_id} 的响应体
+export interface WorkflowStatusResponse {
+  session_id: string;
+  status: string;
+  result?: any;
+  error?: string;
 }
 
 @injectable()
@@ -108,7 +116,7 @@ export class WorkflowService {
     // task 的确定可能需要映射规则，例如基于 node.type
     let task: string;
     if (['python', 'nodejs', 'shell'].includes(node.data?.blockDefinition.executor.name)) {
-      task = `../blocks/${node.data?.blockDefinition.block_id}`; // 使用双反斜杠以确保在字符串中表示单个反斜杠
+      task = `../pkg/blocks/${node.data?.blockDefinition.block_id}/block.oo.yaml`; // 使用双反斜杠以确保在字符串中表示单个反斜杠
     } else {
       task = node.properties?.task || `self::${node.type || node.id}`; // 示例：从properties或基于类型/ID
     }
@@ -155,7 +163,7 @@ export class WorkflowService {
     edges: FrontendEdgeData[];
   }> {
     const block_id = oocanaNode.task.startsWith('self::') ? oocanaNode.task.substring(6) :
-    (oocanaNode.task.startsWith('../blocks/') ? oocanaNode.task.substring(oocanaNode.task.lastIndexOf('/') + 1) : oocanaNode.task); // if not self:: or ../blocks/, use task as block_id
+    (oocanaNode.task.startsWith('../pkg/blocks/') ? oocanaNode.task.substring('../pkg/blocks/'.length).replace("/block.oo.yaml","") : oocanaNode.task); // if not self:: or ../blocks/, use task as block_id
     let actualType = block_id; // Default to block_id as type
 
     let blockDefinition: BlockDefinition | undefined;
@@ -271,13 +279,12 @@ export class WorkflowService {
     if (typeof arg1 === 'string') {
       // Overload: runWorkflow(flowId: string, inputs?: Record<string, any>)
       const flowId = arg1;
-      const inputs = arg2 || {}; // If arg2 is undefined (inputs not provided), use empty object
+      const inputs = arg2 || {};
       const payload: RunWorkflowPayload = {
         block_path: flowId,
         input_values: inputs,
       };
       try {
-        // 根据 api.md, 运行工作流的接口是 POST /api/flows
         const response = await this.apiService.post<RunWorkflowResponse>('/api/flows/run', payload);
         return response;
       } catch (error) {
@@ -289,7 +296,6 @@ export class WorkflowService {
       // Overload: runWorkflow(payload: RunWorkflowPayload)
       const payload = arg1;
       try {
-        // 根据 api.md, 运行工作流的接口是 POST /api/flows
         const response = await this.apiService.post<RunWorkflowResponse>('/api/flows/run', payload);
         return response;
       } catch (error) {
@@ -382,6 +388,22 @@ export class WorkflowService {
       return [];
     } catch (error) {
       console.error('列出工作流失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 获取工作流运行状态
+   * @param sessionId 会话ID
+   * @returns Promise<WorkflowStatusResponse> 工作流状态
+   */
+  async getWorkflowStatus(sessionId: string): Promise<WorkflowStatusResponse> {
+    try {
+      const response = await this.apiService.get<WorkflowStatusResponse>(`/api/flows/status/${sessionId}`);
+      return response;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error(`获取工作流状态失败: ${errorMessage}`, error);
       throw error;
     }
   }

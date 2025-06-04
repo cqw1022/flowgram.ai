@@ -109,7 +109,7 @@ export const BlockNodeRender: React.FC<BlockNodeProps> = (props) => {
 
         <div className="block-body">
           <div className="block-inputs">
-            {block.inputs_def.map(input => (
+            {block.inputs_def && block.inputs_def.map(input => (
               <div key={input.handle} className="block-port block-input">
                 <div className="port-handle" id={`port-${node.id}-${input.handle}`}>
                   {input.optional ? '○' : '●'}
@@ -124,7 +124,7 @@ export const BlockNodeRender: React.FC<BlockNodeProps> = (props) => {
           {form && form.render()}
 
           <div className="block-outputs">
-            {block.outputs_def.map(output => (
+            {block.outputs_def && block.outputs_def.map(output => (
               <div key={output.handle} className="block-port block-output">
                 <div className="port-label">
                   {output.handle} {output.type ? `(${output.type})` : ''}

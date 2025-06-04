@@ -18,23 +18,27 @@ export class BlockRegistryAdapter {
     const ports: Record<string, any> = {};
 
     // 输入端口
-    block.inputs_def.forEach(input => {
-      ports[input.handle] = {
-        group: 'in',
-        tooltip: input.description || input.handle,
-        optional: input.optional,
-        type: input.type,
-      };
-    });
+    if(block.inputs_def) {
+      block.inputs_def.forEach(input => {
+        ports[input.handle] = {
+          group: 'in',
+          tooltip: input.description || input.handle,
+          optional: input.optional,
+          type: input.type,
+        };
+      });
+    }
 
     // 输出端口
-    block.outputs_def.forEach(output => {
-      ports[output.handle] = {
-        group: 'out',
-        tooltip: output.description || output.handle,
-        type: output.type,
-      };
-    });
+    if(block.outputs_def) {
+      block.outputs_def.forEach(output => {
+        ports[output.handle] = {
+          group: 'out',
+          tooltip: output.description || output.handle,
+          type: output.type,
+        };
+      });
+    }
 
     // 生成表单模式
     const formSchema: JsonSchema = {
@@ -47,24 +51,26 @@ export class BlockRegistryAdapter {
     const uiSchema: any = {};
 
     // 添加输入字段到表单模式
-    block.inputs_def.forEach(input => {
-      if (formSchema.properties) {
-        formSchema.properties[input.handle] = {
-          type: this.mapTypeToJsonSchemaType(input.type || 'string'),
-          title: input.handle,
-          description: input.description,
+    if (block.inputs_def) {
+      block.inputs_def.forEach(input => {
+        if (formSchema.properties) {
+          formSchema.properties[input.handle] = {
+            type: this.mapTypeToJsonSchemaType(input.type || 'string'),
+            title: input.handle,
+            description: input.description,
+          };
+        }
+
+        if (!input.optional && formSchema.required) {
+          formSchema.required.push(input.handle);
+        }
+
+        // 设置UI样式
+        uiSchema[input.handle] = {
+          'ui:placeholder': `请输入${input.handle}`,
         };
-      }
-
-      if (!input.optional && formSchema.required) {
-        formSchema.required.push(input.handle);
-      }
-
-      // 设置UI样式
-      uiSchema[input.handle] = {
-        'ui:placeholder': `请输入${input.handle}`,
-      };
-    });
+      });
+    }
 
     // 简单的表单渲染函数
     const renderForm = (_props: FormRenderProps<FlowNodeJSON>) => {
@@ -139,24 +145,28 @@ export class BlockRegistryAdapter {
 
     // 为每个输入定义添加属性
     const inputProperties = inputs.properties || {};
-    block.inputs_def.forEach(input => {
-      inputProperties[input.handle] = {
-        type: this.mapTypeToJsonSchemaType(input.type || 'string'),
-        title: input.handle,
-        description: input.description,
-      };
-    });
+    if(block.inputs_def) {
+      block.inputs_def.forEach(input => {
+        inputProperties[input.handle] = {
+          type: this.mapTypeToJsonSchemaType(input.type || 'string'),
+          title: input.handle,
+          description: input.description,
+        };
+      });
+    }
     inputs.properties = inputProperties;
 
     // 为每个输出定义添加属性
     const outputProperties = outputs.properties || {};
-    block.outputs_def.forEach(output => {
-      outputProperties[output.handle] = {
-        type: this.mapTypeToJsonSchemaType(output.type || 'string'),
-        title: output.handle,
-        description: output.description,
-      };
-    });
+    if(block.outputs_def){
+      block.outputs_def.forEach(output => {
+        outputProperties[output.handle] = {
+          type: this.mapTypeToJsonSchemaType(output.type || 'string'),
+          title: output.handle,
+          description: output.description,
+        };
+      });
+    }
     outputs.properties = outputProperties;
 
     // 创建节点JSON

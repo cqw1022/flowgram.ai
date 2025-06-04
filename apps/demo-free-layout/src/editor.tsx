@@ -34,7 +34,6 @@ export const Editor = () => {
       setCurrentInitialData({ nodes: workflow.nodes || [], edges: workflow.edges || [] });
       setCurrentWorkflow(workflow as WorkflowDefinition); // Set the current workflow
       setEditorKey(prevKey => prevKey + 1); // Increment key to force re-render
-      console.log('Loaded workflow into editor:', workflow);
     } else {
       // Fallback or error handling if workflow data is not as expected
       setCurrentInitialData(initialData);
